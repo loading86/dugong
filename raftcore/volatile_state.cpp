@@ -7,20 +7,22 @@ namespace raftcore
         m_snapshot = nullptr;
     }
 
-    uint64_t VolatileState::LastIndex()
+    bool VolatileState::LastIndex(uint64_t& index)
     {
         if(!m_ents.empty())
         {
-            return m_ents.rbegin()->index();
+            index = m_ents.rbegin()->index();
+            returun true;
         }
         if(m_snapshot != nullptr)
         {
-            return m_snapshot->metadata().index();
+            index = m_snapshot->metadata().index();
+            return true;
         }
-        return 0;
+        return false;
     }
 
-    uint64_t VolatileState::TermOf(uint64_t index)
+    bool VolatileState::TermOf(uint64_t index, uint64_t& term)
     {
         if(!m_ents.empty())
         {
@@ -28,23 +30,26 @@ namespace raftcore
             uint64_t local_end_index = m_ents.rbegin()->index();
             if(index >= local_first_index && index <= local_end_index)
             {
-                return m_ents[index - local_first_index].term();
+                term =  m_ents[index - local_first_index].term();
+                returun true;
             }
         }
         if(m_snapshot != nullptr)
         {
             if(m_snapshot->metadata().index() == index)
             {
-                return m_snapshot->metadata().term();
+                term =  m_snapshot->metadata().term();
+                return true;
             }
         }
-        return UINT64_MAX;
+        return false;
     }
 
-    bool VolatileState::Compact(uint64_t index, uint64_t term)
+    bool VolatileState::ClearEntriesBefore(uint64_t index, uint64_t term)
     {
-        uint64_t local_term = TermOf(index);
-        if(UINT64_MAX == local_term || local_term != term)
+        uint64_t local_term;
+        bool ret = TermOf(index, local_term);
+        if(!ret || local_term != term)
         {
             return false;
         }
@@ -81,9 +86,14 @@ namespace raftcore
         {
             return;
         }
-        
+        uint64_t import_first_index_should_be = m_offset + m_entries.size();
         uint64_t import_first_index = entries.begin()->index();
         uint64_t import_end_index = entries.rbegin()->index();
+        if(import_first_index_should_be == import_first_index)
+        {
+            m_ents.insert(m_ents.end(), entries.begin(), entries.end()); 
+            return;
+        }
         if(import_first_index <= m_offset)
         {
             m_ents = entries;
@@ -93,9 +103,9 @@ namespace raftcore
         uint64_t local_end_index = LastIndex();
         if(import_first_index > local_end_index)
         {
-            return;
+            m_logger->Panic("gap between local entries and income entries");
         }
-        uint64_t preserve = import_first_index - import_end_index;
+        uint64_t preserve = local_end_index - import_first_index;
         m_ents.erase(m_ents.begin() + preserve, m_ents.end());
         m_ents.insert(m_ents.end(), entries.begin(), entries.end());   
     }
@@ -105,5 +115,15 @@ namespace raftcore
         m_snapshot = snapshot;
         m_ents.clear();
         m_offset = m_snapshot == nullptr ? 1 : m_snapshot->metadata().index() + 1;
+    }
+
+    bool VolatileState::FirstUnstableIndex(uint64_t& index)
+    {
+        if(m_snapshot != nullptr)
+        {
+            index = m_snapshot->metadata().index() + 1;
+            return true;
+        }
+        return false;
     }
 }

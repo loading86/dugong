@@ -55,8 +55,8 @@ struct SnapshotMetadata
 {  
 public:
     ConfState m_conf_state;
-    uint64_t m_index;
-    uint64_t m_term;
+    uint64_t m_index = 0;
+    uint64_t m_term = 0;
 
 public:
     MSGPACK_DEFINE(m_conf_state, m_index, m_term);
@@ -75,9 +75,9 @@ public:
 struct Entry 
 {
 public:
-    uint64_t m_index;
-    uint64_t m_term;
-    EntryType m_type;
+    uint64_t m_index = 0;
+    uint64_t m_term = 0;
+    EntryType m_type = EntryType::EntryNormal;
     std::string m_data;
 
 public:
@@ -93,17 +93,17 @@ public:
 struct Message 
 {
 public:
-	MessageType m_type;
-	uint64_t m_to;
-	uint64_t m_from;
-	uint64_t m_term;
-	uint64_t m_log_term;
-	uint64_t m_index;
-	Entry m_entries;
-	uint64_t m_commit;
+	MessageType m_type = MessageType::MsgApp;
+	uint64_t m_to = 0;
+	uint64_t m_from = 0;
+	uint64_t m_term = 0;
+	uint64_t m_log_term = 0;
+	uint64_t m_index = 0;
+	std::deque<Entry> m_entries;
+	uint64_t m_commit = 0;
 	Snapshot m_snapshot;
-	bool m_reject;
-	uint64_t m_reject_hint;
+	bool m_reject = false;
+	uint64_t m_reject_hint = 0;
 	std::string m_context;
 
 public:
@@ -113,9 +113,9 @@ public:
 struct HardState
 {
 public:
-    uint64_t m_term;
-    uint64_t m_vote;
-    uint64_t m_commit;
+    uint64_t m_term = 0;
+    uint64_t m_vote = 0;
+    uint64_t m_commit = 0;
 
 public:
     MSGPACK_DEFINE(m_term, m_vote, m_commit);
@@ -124,9 +124,9 @@ public:
 struct ConfChange 
 {
 public:
-	uint64_t m_id;
-	ConfChangeType m_type;
-	uint64_t m_node_id;
+	uint64_t m_id = 0;
+	ConfChangeType m_type = ConfChangeType::ConfChangeAddLearnerNode;
+	uint64_t m_node_id = 0;
 	std::string m_context;
 
 public:
