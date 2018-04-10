@@ -75,7 +75,7 @@ namespace raftcore
         return true;
     }
 
-    void VolatileState::Append(const std::deque<raftpb::Entry>& entries)
+    void VolatileState::Append(const std::deque<Entry>& entries)
     {
         if(entries.empty())
         {
@@ -100,7 +100,7 @@ namespace raftcore
         m_ents.insert(m_ents.end(), entries.begin(), entries.end());   
     }
 
-    void VolatileState::Load(std::shared_ptr<raftpb::Snapshot> snapshot)
+    void VolatileState::Load(std::shared_ptr<Snapshot> snapshot)
     {
         m_snapshot = snapshot;
         m_ents.clear();
