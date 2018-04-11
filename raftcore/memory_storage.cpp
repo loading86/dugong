@@ -3,6 +3,7 @@
 
 namespace raftcore
 {
+    
     MemoryStorage::MemoryStorage()
     {
         Entry ent;
@@ -36,6 +37,31 @@ namespace raftcore
         ent.m_term = snapshot->m_snapshot_metadata.m_term;
         ent.m_index = snapshot->m_snapshot_metadata.m_index;
         m_entries.push_back(ent);
+        return true;
+    }
+
+    uint64_t MemoryStorage::FirstIndex()
+    {
+        return m_entries[0].m_index + 1;
+    }
+
+    uint64_t MemoryStorage::LastIndex()
+    {
+        return m_entries[0].m_index + m_entries.size() - 1;
+    }
+
+    bool MemoryStorage::TermOf(uint64_t index, uint64_t& term)
+    {
+        uint64_t offset = m_entries[0].m_index;
+        if(index < offset)
+        {
+            return false;
+        }
+        if(index - offset >= m_entries.size())
+        {
+            return false;
+        }
+        term = m_entries[index - offset].m_term;
         return true;
     }
 }

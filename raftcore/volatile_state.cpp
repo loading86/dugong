@@ -1,10 +1,11 @@
 #include "volatile_state.h"
 namespace raftcore
 {
-    VolatileState::VolatileState()
+    VolatileState::VolatileState(std::shared_ptr<Logger> logger)
     {
         m_offset = 1;
         m_snapshot = nullptr;
+        m_logger = logger;
     }
 
     bool VolatileState::LastIndex(uint64_t& index)
