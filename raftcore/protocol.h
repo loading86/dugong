@@ -1,3 +1,4 @@
+#pragma once
 #include "msgpack.hpp"
 #include <inttypes.h>
 #include <string>
@@ -44,11 +45,11 @@ enum class ConfChangeType
 struct ConfState
 {     
 public:
-    std::vector<uint64_t> m_nodes;
+    std::vector<uint64_t> m_peers;
     std::vector<uint64_t> m_learners;
 
 public:
-    MSGPACK_DEFINE(m_nodes, m_learners);
+    MSGPACK_DEFINE(m_peers, m_learners);
 };
 
 struct SnapshotMetadata
@@ -81,11 +82,6 @@ public:
     std::string m_data;
 
 public:
-    // Entry() = delete;
-    // Entry(Entry&&) = default;
-    // Entry(const Entry&) = default;   
-    // Entry& Entry::operator=(Entry&&) = default;
-    // Entry& Entry::operator=(const Entry&) = default;
     MSGPACK_DEFINE(m_index, m_term, (int&)m_type, m_data); 
 
 };
