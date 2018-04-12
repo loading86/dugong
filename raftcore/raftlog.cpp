@@ -58,8 +58,41 @@ namespace raftcore
         return storage->LastIndex();
     }
 
+    uint64_t RaftLog::FindConflict(const std::deque<Entry>& ents)
+    {
+        for(auto ent: ents)
+        {
+            if(Match(ent.m_index, ent.m_term))
+            {
+                continue;
+            }
+            return ent.m_index;
+        }
+        return 0;
+    }
+
+    bool AppendToVolatileState(const std::deque<Entry>& ents, int offset)
+    {
+        if(offset >= ents.size())
+        {
+            return true;
+        }
+        uint64_t offset_index = ents[0].m_index;
+        assert(offset_index > m_commit);
+        m_volatile_state->Append(ents, offset);
+        return true;
+    }
     bool RaftLog::Append(uint64_t last_index, uint64_t last_term, uint64_t commit, const std::deque<Entry>& ents)
     {
-        bool ret = 
+        bool ret = Match(last_index, last_term);
+        if(!ret)
+        {
+            return false;
+        }
+        uint64_t conflict_index = FindConflict(ents);
+        assert(conflict_index > m_commit);
+        AppendToVolatileState(ents, conflict_index - ents[0].m_index);
+        m_commit = std::min(commit, last_index + ents.size());
+        return true;
     }
 }

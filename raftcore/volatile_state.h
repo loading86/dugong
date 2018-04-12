@@ -14,7 +14,7 @@ namespace raftcore
         bool TermOf(uint64_t index, uint64_t& term);
         bool ClearEntriesBefore(uint64_t index, uint64_t term);
         bool ClearSnapshot(uint64_t index);
-        void Append(const std::deque<Entry>& entries);
+        void Append(const std::deque<Entry>& entries, uint64_t offset);
         void Load(std::shared_ptr<Snapshot> snapshot);
         bool FirstUnstableIndex(uint64_t& index);
         void SetOffset(uint64_t offset){m_offset = offset;}

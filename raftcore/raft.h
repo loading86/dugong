@@ -45,6 +45,9 @@ namespace raftcore
         public:
             Raft(const RaftConfig& cfg, std::shared_ptr<MemoryStorage> storage, std::shared_ptr<Logger> logger);
             bool LoadState(const HardState& hs);
+            void StepLeader(Message& msg);
+            void StepFollower(Message& msg);
+            void StepCandidate(Message& msg);
     };
 
 }

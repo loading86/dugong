@@ -81,23 +81,23 @@ namespace raftcore
         return true;
     }
 
-    void VolatileState::Append(const std::deque<Entry>& entries)
+    void VolatileState::Append(const std::deque<Entry>& entries, uint64_t offset)
     {
-        if(entries.empty())
+        if(offset >= entries.size())
         {
             return;
         }
         uint64_t import_first_index_should_be = m_offset + m_entries.size();
-        uint64_t import_first_index = entries.begin()->m_index;
+        uint64_t import_first_index = (entries.begin() + offset)->m_index;
         uint64_t import_end_index = entries.rbegin()->m_index;
         if(import_first_index_should_be == import_first_index)
         {
-            m_entries.insert(m_entries.end(), entries.begin(), entries.end()); 
+            m_entries.insert(m_entries.end(), entries.begin() + offset, entries.end()); 
             return;
         }
         if(import_first_index <= m_offset)
         {
-            m_entries = entries;
+            m_entries.assign(entries.begin() + offset, entries.end());
             m_offset = import_first_index;
             return;
         }
@@ -108,7 +108,7 @@ namespace raftcore
         }
         uint64_t preserve = local_end_index - import_first_index;
         m_entries.erase(m_entries.begin() + preserve, m_entries.end());
-        m_entries.insert(m_entries.end(), entries.begin(), entries.end());   
+        m_entries.insert(m_entries.end(), entries.begin() + offset, entries.end());   
     }
 
     void VolatileState::Load(std::shared_ptr<Snapshot> snapshot)

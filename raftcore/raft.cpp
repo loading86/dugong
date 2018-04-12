@@ -52,4 +52,15 @@ namespace raftcore
         m_vote_for = hs.m_vote;
         return true; 
     }
+
+    void Raft::StepLeader(Message& msg)
+    {
+        if(msg.m_term > m_cur_term)
+        {
+            if(msg.m_type == MessageType::MsgApp || msg.m_type == MessageType::MsgHeartbeat || msg.m_type == MessageType::MsgSnap)
+            {
+                Become
+            }
+        }
+    }
 }
