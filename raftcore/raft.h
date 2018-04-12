@@ -1,4 +1,6 @@
 #pragma once
+#include <ctime>
+#include <random>
 #include "raftlog.h"
 #include "raft_config.h"
 #include "protocol.h"
@@ -33,7 +35,7 @@ namespace raftcore
             bool m_is_learner;
             std::list<Message> m_messages;
             uint64_t m_leader;
-            uint64_t m_transfer_learder;
+            uint64_t m_transfer_leader;
             uint64_t m_heartbeat_tick;
             uint64_t m_election_tick;
             uint64_t m_heartbeat_elapsed;
@@ -41,6 +43,11 @@ namespace raftcore
             uint64_t m_random_election_tick;
             bool m_disable_proposal_forwarding;
             ReadOnlyOption m_readonly_option;
+
+            unsigned m_seed;
+            std::mt19937_64* m_rng;
+            std::uniform_int_distribution<int>* m_uni;
+
         
         public:
             Raft(const RaftConfig& cfg, std::shared_ptr<MemoryStorage> storage, std::shared_ptr<Logger> logger);

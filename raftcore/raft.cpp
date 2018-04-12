@@ -39,6 +39,10 @@ namespace raftcore
             learners = cs.m_learners;
         }
         LoadState(hs);
+        m_seed = time();
+        m_rng = new std::mt19937_64(m_seed);
+        m_uni = new std::uniform_int_distribution<int>(0, m_election_tick);
+
     }
 
     bool Raft::LoadState(const HardState& hs)
@@ -53,13 +57,26 @@ namespace raftcore
         return true; 
     }
 
+    void Raft::BecomeFollower(uint64_t term, uint64_t leader)
+    {
+        m_cur_term = term;
+        m_cur_state = StateType::StateFollower;
+        m_vote_for = 0;
+        m_messages.clear();
+        m_transfer_leader = 0;
+        m_heartbeat_elapsed = 0;
+        m_election_elapsed = 0;
+        m_random_election_tick = 
+
+    }
+
     void Raft::StepLeader(Message& msg)
     {
         if(msg.m_term > m_cur_term)
         {
             if(msg.m_type == MessageType::MsgApp || msg.m_type == MessageType::MsgHeartbeat || msg.m_type == MessageType::MsgSnap)
             {
-                Become
+                BecomeFollower(msg.m_term, msg.m_from);
             }
         }
     }
