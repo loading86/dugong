@@ -4,6 +4,7 @@
 #include "raftlog.h"
 #include "raft_config.h"
 #include "protocol.h"
+#include "progress.h"
 namespace raftcore
 {
 
@@ -44,9 +45,10 @@ namespace raftcore
             bool m_disable_proposal_forwarding;
             ReadOnlyOption m_readonly_option;
 
-            unsigned m_seed;
-            std::mt19937_64* m_rng;
-            std::uniform_int_distribution<int>* m_uni;
+            std::map<uint64_t, bool> m_votes;
+            std::map<uint64_t, Progress> m_peers;
+            std::map<uint64_t, Progress> m_learners;
+            bool m_pending_conf;
 
         
         public:
