@@ -49,14 +49,19 @@ namespace raftcore
             std::map<uint64_t, Progress> m_peers;
             std::map<uint64_t, Progress> m_learners;
             bool m_pending_conf;
+            uint64_t m_transfer_learder;
 
         
         public:
             Raft(const RaftConfig& cfg, std::shared_ptr<MemoryStorage> storage, std::shared_ptr<Logger> logger);
             bool LoadState(const HardState& hs);
             void StepLeader(Message& msg);
-            void StepFollower(Message& msg);
-            void StepCandidate(Message& msg);
+            // void StepFollower(Message& msg);
+            // void StepCandidate(Message& msg);
+            void Reset(uint64_t term);
+            void BecomeFollower(uint64_t term, uint64_t leader);
+            int Random(int high);
+            void StepMessage(Message& msg);
     };
 
 }

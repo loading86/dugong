@@ -118,4 +118,16 @@ namespace raftcore
         }
     }
 
+    void Progress::Reset()
+    {
+        m_match = 0;
+        m_next = 0;
+        m_state = ProgressStateType::ProgressProbe;
+        m_paused = false;
+        m_active = false;
+        m_inflights.Reset();
+        learner = false;
+        m_pending_snapshot_index = 0;        
+    }
+
 }

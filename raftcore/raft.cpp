@@ -70,10 +70,11 @@ namespace raftcore
         for(auto& node_prog : m_peers)
         {
             Progress& prog = node_prog.second;
+            //prog.Reset();
             prog.m_next = m_raftlog->LastIndex() + 1;
             prog.m_active = true;
-            prog.PendingSnapshot = 0;
-            prog.m_inflights.clear();
+            prog.m_pending_snapshot_index = 0;
+            prog.m_inflights.Reset();
             prog.m_match = 0;
             if(node_prog.first == m_id)
             {
@@ -85,8 +86,8 @@ namespace raftcore
             Progress& prog = node_prog.second;
             prog.m_next = m_raftlog->LastIndex() + 1;
             prog.m_active = true;
-            prog.PendingSnapshot = 0;
-            prog.m_inflights.clear();
+            prog.m_pending_snapshot_index = 0;
+            prog.m_inflights.Reset();
             prog.m_match = 0;
             if(node_prog.first == m_id)
             {
@@ -114,7 +115,7 @@ namespace raftcore
 
     void Raft::StepMessage(Message& msg)
     {
-        if(msg.term > m_cur_term)
+        if(msg.m_term > m_cur_term)
         {
             if(msg.m_type == MessageType::MsgApp || msg.m_type == MessageType::MsgHeartbeat || msg.m_type == MessageType::MsgSnap)
             {

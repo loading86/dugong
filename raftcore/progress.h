@@ -28,7 +28,7 @@ namespace raftcore
 
     class Progress
     {
-        private:
+        public:
             uint64_t m_match;
             uint64_t m_next;
             ProgressStateType m_state;
@@ -47,6 +47,7 @@ namespace raftcore
             void Resume();
             bool MayUpdate(uint64_t match_index);
             bool SendStopped();
+            void Reset();
     };
 
 }

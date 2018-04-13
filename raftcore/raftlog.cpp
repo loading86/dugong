@@ -32,7 +32,7 @@ namespace raftcore
         {
             return true;
         }
-        ret = storage->TermOf(index, term);
+        ret = m_storage->TermOf(index, term);
         return ret;
     }
 
@@ -44,7 +44,7 @@ namespace raftcore
         {
             return index;
         }
-        return storage->FirstIndex();
+        return m_storage->FirstIndex();
     }
 
     uint64_t RaftLog::LastIndex()
@@ -55,7 +55,7 @@ namespace raftcore
         {
             return index;
         }
-        return storage->LastIndex();
+        return m_storage->LastIndex();
     }
 
     uint64_t RaftLog::FindConflict(const std::deque<Entry>& ents)
@@ -71,7 +71,7 @@ namespace raftcore
         return 0;
     }
 
-    bool AppendToVolatileState(const std::deque<Entry>& ents, int offset)
+    bool RaftLog::AppendToVolatileState(const std::deque<Entry>& ents, int offset)
     {
         if(offset >= ents.size())
         {
